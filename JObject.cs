@@ -202,7 +202,7 @@ namespace DA_JsonLibrary_CS
             return ToStringFormatted(ref indentLevel);
         }
 
-        private string ToStringFormatted(ref int indentLevel)
+        internal string ToStringFormatted(ref int indentLevel)
         {
             // Purpose: Convert this JObject into a string with formatting
             // Author : Scott Bakker

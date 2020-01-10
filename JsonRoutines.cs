@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Text;
 
 namespace DA_JsonLibrary_CS
@@ -15,19 +16,16 @@ namespace DA_JsonLibrary_CS
 
         private const int _indentSpaceSize = 2;
 
-        internal static string IndentSpace(int indentLevel)
+        public static string IndentSpace(int indentLevel)
         {
-            if (indentLevel < 0)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-            if (indentLevel == 0)
+            // Purpose: Return a string with the proper number of space chars
+            // Author : Scott Bakker
+            // Created: 09/13/2019
+            if (indentLevel <= 0)
             {
                 return "";
             }
-            StringBuilder result = new StringBuilder(indentLevel * _indentSpaceSize);
-            result.Insert(0, " ", indentLevel * _indentSpaceSize);
-            return result.ToString();
+            return new string(' ', indentLevel * _indentSpaceSize);
         }
 
         public static string ValueToString(object value)
@@ -44,7 +42,192 @@ namespace DA_JsonLibrary_CS
             // Purpose: Return a value in proper JSON string format
             // Author : Scott Bakker
             // Created: 09/13/2019
-            throw new NotImplementedException();
+
+            if (value == null)
+            {
+                return "null";
+            }
+
+            Type t = value.GetType();
+
+            // Check for generic list types
+            if (t.IsGenericType)
+            {
+                StringBuilder result = new StringBuilder();
+                result.Append("[");
+                if (indentLevel >= 0)
+                {
+                    indentLevel++;
+                }
+                bool addComma = false;
+                foreach (object obj in (IEnumerable)value)
+                {
+                    if (addComma)
+                    {
+                        result.Append(",");
+                    }
+                    else
+                    {
+                        addComma = true;
+                    }
+                    if (indentLevel >= 0)
+                    {
+                        result.AppendLine();
+                        result.Append(IndentSpace(indentLevel));
+                    }
+                    result.Append(ValueToString(obj));
+                }
+                if (indentLevel > 0)
+                {
+                    indentLevel--;
+                    result.AppendLine();
+                    result.Append(IndentSpace(indentLevel));
+                }
+                result.Append("]");
+                return result.ToString();
+            }
+
+            // Check for byte array, return as hex string "0x00..."
+            if (t.IsArray && t == typeof(byte[]))
+            {
+                StringBuilder result = new StringBuilder();
+                result.Append("0x");
+                foreach (byte b in (byte[])value)
+                {
+                    result.Append(b.ToString("x2", null));
+                }
+                return result.ToString();
+            }
+
+            // Check for array, return in JArray format
+            if (t.IsArray)
+            {
+                StringBuilder result = new StringBuilder();
+                result.Append("[");
+                if (indentLevel >= 0)
+                {
+                    indentLevel++;
+                }
+                bool addComma = false;
+                for (int i = 0; i < ((Array)value).Length; i++)
+                {
+                    if (addComma)
+                    {
+                        result.Append(",");
+                    }
+                    else
+                    {
+                        addComma = true;
+                    }
+                    if (indentLevel >= 0)
+                    {
+                        result.AppendLine();
+                        result.Append(IndentSpace(indentLevel));
+                    }
+                    object obj = ((Array)value).GetValue(i);
+                    result.Append(ValueToString(obj));
+                }
+                if (indentLevel > 0)
+                {
+                    indentLevel--;
+                    result.AppendLine();
+                    result.Append(IndentSpace(indentLevel));
+                }
+                result.Append("]");
+                return result.ToString();
+            }
+
+            // Check for individual types
+            if (t == typeof(string))
+            {
+                StringBuilder result = new StringBuilder();
+                result.Append("\"");
+                foreach (char c in (string)value)
+                {
+                    result.Append(ToJsonChar(c));
+                }
+                result.Append("\"");
+                return result.ToString();
+            }
+            if (t == typeof(char))
+            {
+                StringBuilder result = new StringBuilder();
+                result.Append("\"");
+                result.Append(ToJsonChar((char)value));
+                result.Append("\"");
+                return result.ToString();
+            }
+            if (t == typeof(Guid))
+            {
+                return $"\"{value.ToString()}\"";
+            }
+            if (t == typeof(bool))
+            {
+                if ((bool)value)
+                {
+                    return "true";
+                }
+                else
+                {
+                    return "false";
+                }
+            }
+            if (t == typeof(DateTime))
+            {
+                DateTime d = (DateTime)value;
+                if (d.Hour + d.Minute + d.Second + d.Millisecond == 0)
+                {
+                    return $"\"{d.ToString(_dateFormat, null)}\"";
+                }
+                if (d.Year + d.Month + d.Day == 0)
+                {
+                    if (d.Millisecond == 0)
+                    {
+                        return $"\"{d.ToString(_timeFormat, null)}\"";
+                    }
+                    else
+                    {
+                        return $"\"{d.ToString(_timeMilliFormat, null)}\"";
+                    }
+                }
+                if (d.Millisecond == 0)
+                {
+                    return $"\"{d.ToString(_dateTimeFormat, null)}\"";
+                }
+                else
+                {
+                    return $"\"{d.ToString(_dateTimeMilliFormat, null)}\"";
+                }
+            }
+            if (t == typeof(DateTimeOffset))
+            {
+                return $"\"{((DateTimeOffset)value).ToString(_dateTimeOffsetFormat, null)}\"";
+            }
+            if (t == typeof(JObject))
+            {
+                return ((JObject)value).ToStringFormatted(ref indentLevel);
+            }
+            if (t == typeof(JArray))
+            {
+                return ((JArray)value).ToStringFormatted(ref indentLevel);
+            }
+            if (t == typeof(byte) ||
+                t == typeof(sbyte) ||
+                t == typeof(short) ||
+                t == typeof(int) ||
+                t == typeof(long) ||
+                t == typeof(ushort) ||
+                t == typeof(uint) ||
+                t == typeof(ulong) ||
+                t == typeof(float) ||
+                t == typeof(double) ||
+                t == typeof(decimal))
+            {
+                // Let ToString do all the work
+                return value.ToString();
+            }
+
+            throw new SystemException($"JSON Error: Unknown object type: {t.ToString()}");
         }
 
         internal static string FromJsonString(string value)
