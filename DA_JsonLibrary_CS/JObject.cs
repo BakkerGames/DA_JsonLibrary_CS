@@ -3,13 +3,11 @@
 // Created: 09/13/2019
 
 // Notes  : The keys in this JObject implementation are case sensitive, so "abc" <> "ABC".
-//        : The items in this JObject are NOT ordered in any way. Specifically, successive
-//          calls to ToString() may not return the same results.
-//        : The function ToStringSorted() may be used to return a sorted list, but will be
-//          somewhat slower due to overhead. The ordering is not specified here but it
-//          should be consistent across calls.
-//        : The function ToString(JsonFormat.Space) will return a string representation with
-//          whitespace added. Two spaces are used for indenting, and CRLF between lines.
+//        : The items in this JObject are NOT ordered in any way.
+//        : The function ToString(JsonFormat.Indent) will return a string representation with
+//          whitespace added. Two spaces per level are used for indenting, and CRLF between lines.
+//        : The function ToString(JsonFormat.Tabs) will return a string representation with
+//          tabs added. One tab per level is used for indenting, and CRLF between lines.
 
 using System;
 using System.Collections;

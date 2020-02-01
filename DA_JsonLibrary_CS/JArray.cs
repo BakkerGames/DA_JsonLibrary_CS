@@ -4,8 +4,10 @@
 
 // Notes  : The values in the list ARE ordered based on when they are added.
 //          The values are NOT sorted, and there can be duplicates.
-//        : The function ToString(JsonFormat.Space) will return a string representation with
-//          whitespace added. Two spaces are used for indenting, and CRLF between lines.
+//        : The function ToString(JsonFormat.Indent) will return a string representation with
+//          whitespace added. Two spaces per level are used for indenting, and CRLF between lines.
+//        : The function ToString(JsonFormat.Tabs) will return a string representation with
+//          tabs added. One tab per level is used for indenting, and CRLF between lines.
 
 using System;
 using System.Collections;
