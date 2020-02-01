@@ -213,7 +213,7 @@ namespace DA_JsonLibrary_CS
             }
             StringBuilder result = new StringBuilder();
             result.Append("{");
-            if (indentLevel>=0)
+            if (indentLevel >= 0)
             {
                 indentLevel++;
                 result.AppendLine();
@@ -237,7 +237,7 @@ namespace DA_JsonLibrary_CS
                 {
                     result.Append(JsonRoutines.IndentSpace(indentLevel));
                 }
-                result.Append(JsonRoutines.ValueToString(kv.Key ));
+                result.Append(JsonRoutines.ValueToString(kv.Key));
                 result.Append(":");
                 if (indentLevel >= 0)
                 {
@@ -267,7 +267,8 @@ namespace DA_JsonLibrary_CS
             // Purpose: Convert a string into a JObject
             // Author : Scott Bakker
             // Created: 09/13/2019
-            throw new NotImplementedException();
+            int pos = 0;
+            return Parse(ref pos, value);
         }
 
         public static JObject Parse(ref int pos, string value)
@@ -275,7 +276,68 @@ namespace DA_JsonLibrary_CS
             // Purpose: Convert a partial string into a JObject
             // Author : Scott Bakker
             // Created: 09/13/2019
-            throw new NotImplementedException();
+            if (value == null || value.Length == 0)
+            {
+                return null;
+            }
+            JObject result = new JObject();
+            JsonRoutines.SkipWhitespace(ref pos, value);
+            if (value[pos] != '{')
+            {
+                throw new SystemException($"JSON Error: Unexpected token to start JObject: {value[pos]}");
+            }
+            pos++;
+            do
+            {
+                JsonRoutines.SkipWhitespace(ref pos, value);
+                // check for symbols
+                if (value[pos] == '}')
+                {
+                    pos++;
+                    break; // done building
+                }
+                if (value[pos] == ',')
+                {
+                    // this logic ignores extra commas, but is ok
+                    pos++;
+                }
+                string tempKey = JsonRoutines.GetToken(ref pos, value);
+                if (string.IsNullOrEmpty(tempKey) || tempKey == "\"\"")
+                {
+                    throw new SystemException($"JSON Error: Null or empty key");
+                }
+                if (!tempKey.StartsWith("\"") || !tempKey.EndsWith("\""))
+                {
+                    throw new SystemException($"JSON Error: Invalid key format: {tempKey}");
+                }
+                // Convert to usable key
+                tempKey = JsonRoutines.JsonValueToObject(tempKey).ToString();
+                // Check for ":" between key and value
+                string tempColon = JsonRoutines.GetToken(ref pos, value);
+                if (tempColon != ":")
+                {
+                    throw new SystemException($"JSON Error: Missing colon: {tempColon}");
+                }
+                // Get value
+                JsonRoutines.SkipWhitespace(ref pos, value);
+                if (value[pos] == '{') // JObject
+                {
+                    JObject jo = JObject.Parse(ref pos, value);
+                    result.Add(tempKey, jo);
+                }
+                else if (value[pos] == '[') // JArray
+                {
+                    JArray ja = JArray.Parse(ref pos, value);
+                    result.Add(tempKey, ja);
+                }
+                else
+                {
+                    // Get value as a string, convert to object
+                    string tempValue = JsonRoutines.GetToken(ref pos, value);
+                    result.Add(tempKey, JsonRoutines.JsonValueToObject(tempValue));
+                }
+            } while (true);
+            return result;
         }
 
         public static JObject Clone(JObject jo)
