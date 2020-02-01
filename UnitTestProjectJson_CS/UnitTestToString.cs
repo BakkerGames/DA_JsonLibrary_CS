@@ -25,7 +25,7 @@ namespace UnitTestProjectJson_CS
         public void TestNewJArrayToStringNone()
         {
             JArray testObj = new JArray();
-            Assert.AreEqual(testObj.ToString(), "[]");
+            Assert.AreEqual(testObj.ToString(JsonFormat.None), "[]");
         }
 
         [TestMethod]
@@ -33,6 +33,13 @@ namespace UnitTestProjectJson_CS
         {
             JArray testObj = new JArray();
             Assert.AreEqual(testObj.ToString(JsonFormat.Indent), "[]");
+        }
+
+        [TestMethod]
+        public void TestNewJArrayToStringTabs()
+        {
+            JArray testObj = new JArray();
+            Assert.AreEqual(testObj.ToString(JsonFormat.Tabs), "[]");
         }
 
         [TestMethod]
@@ -150,7 +157,7 @@ namespace UnitTestProjectJson_CS
         public void TestNewJObjectToStringNone()
         {
             JObject testObj = new JObject();
-            Assert.AreEqual(testObj.ToString(), "{}");
+            Assert.AreEqual(testObj.ToString(JsonFormat.None), "{}");
         }
 
         [TestMethod]
@@ -176,6 +183,14 @@ namespace UnitTestProjectJson_CS
         }
 
         [TestMethod]
+        public void TestNewJObjectToStringOneItemNumNone()
+        {
+            JObject testObj = new JObject();
+            testObj.Add("Hello", 123);
+            Assert.AreEqual(testObj.ToString(JsonFormat.None), "{\"Hello\":123}");
+        }
+
+        [TestMethod]
         public void TestNewJObjectToStringOneItemNumIndent()
         {
             JObject testObj = new JObject();
@@ -198,6 +213,15 @@ namespace UnitTestProjectJson_CS
             testObj.Add("Hello", 123);
             testObj.Add("World", 999);
             Assert.AreEqual(testObj.ToString(), "{\"Hello\":123,\"World\":999}");
+        }
+
+        [TestMethod]
+        public void TestNewJObjectToStringTwoItemNumNone()
+        {
+            JObject testObj = new JObject();
+            testObj.Add("Hello", 123);
+            testObj.Add("World", 999);
+            Assert.AreEqual(testObj.ToString(JsonFormat.None), "{\"Hello\":123,\"World\":999}");
         }
 
         [TestMethod]
