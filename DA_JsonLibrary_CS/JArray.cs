@@ -4,7 +4,7 @@
 
 // Notes  : The values in the list ARE ordered based on when they are added.
 //          The values are NOT sorted, and there can be duplicates.
-//        : The function ToStringFormatted() will return a string representation with
+//        : The function ToString(JsonFormat.Space) will return a string representation with
 //          whitespace added. Two spaces are used for indenting, and CRLF between lines.
 
 using System;
@@ -24,6 +24,15 @@ namespace DA_JsonLibrary_CS
             // Author : Scott Bakker
             // Created: 09/13/2019
             _data = new List<object>();
+        }
+
+        public JArray(JArray ja)
+        {
+            // Purpose: Create new JArray object from an existing JArray
+            // Author : Scott Bakker
+            // Created: 09/13/2019
+            _data = new List<object>();
+            this.Append(ja);
         }
 
         public IEnumerator<object> GetEnumerator()
@@ -118,7 +127,7 @@ namespace DA_JsonLibrary_CS
 
         public override string ToString()
         {
-            // Purpose: Convert this JArray into a string
+            // Purpose: Convert this JArray into a string with no formatting
             // Author : Scott Bakker
             // Created: 09/13/2019
             StringBuilder result = new StringBuilder();
@@ -134,22 +143,22 @@ namespace DA_JsonLibrary_CS
                 {
                     addComma = true;
                 }
-                result.Append(JsonRoutines.ValueToString(obj));
+                result.Append(JsonRoutines.ValueToString(obj, JsonFormat.None));
             }
             result.Append("]");
             return result.ToString();
         }
 
-        public string ToStringFormatted()
+        public string ToString(JsonFormat jf)
         {
             // Purpose: Convert this JArray into a string with formatting
             // Author : Scott Bakker
             // Created: 10/17/2019
             int indentLevel = 0;
-            return ToStringFormatted(ref indentLevel);
+            return ToString(ref indentLevel, jf);
         }
 
-        internal string ToStringFormatted(ref int indentLevel)
+        internal string ToString(ref int indentLevel, JsonFormat jf)
         {
             // Purpose: Convert this JArray into a string with formatting
             // Author : Scott Bakker
@@ -160,7 +169,7 @@ namespace DA_JsonLibrary_CS
             }
             StringBuilder result = new StringBuilder();
             result.Append("[");
-            if (indentLevel >= 0)
+            if (jf != JsonFormat.None)
             {
                 indentLevel++;
                 result.AppendLine();
@@ -171,7 +180,7 @@ namespace DA_JsonLibrary_CS
                 if (addComma)
                 {
                     result.Append(",");
-                    if (indentLevel >= 0)
+                    if (jf != JsonFormat.None)
                     {
                         result.AppendLine();
                     }
@@ -182,9 +191,9 @@ namespace DA_JsonLibrary_CS
                 }
                 if (indentLevel > 0)
                 {
-                    result.Append(JsonRoutines.IndentSpace(indentLevel));
+                    result.Append(JsonRoutines.IndentSpace(indentLevel, jf));
                 }
-                result.Append(JsonRoutines.ValueToString(obj));
+                result.Append(JsonRoutines.ValueToString(obj, jf));
             }
             if (indentLevel > 0)
             {
@@ -192,7 +201,7 @@ namespace DA_JsonLibrary_CS
                 indentLevel--;
                 if (indentLevel > 0)
                 {
-                    result.Append(JsonRoutines.IndentSpace(indentLevel));
+                    result.Append(JsonRoutines.IndentSpace(indentLevel, jf));
                 }
             }
             result.Append("]");
@@ -237,8 +246,9 @@ namespace DA_JsonLibrary_CS
                 {
                     // this logic ignores extra commas, but is ok
                     pos++;
+                    continue;
                 }
-                else if (value[pos] == '{') // JObject
+                if (value[pos] == '{') // JObject
                 {
                     JObject jo = JObject.Parse(ref pos, value);
                     result.Add(jo);

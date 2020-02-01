@@ -47,13 +47,5 @@
     <Compile Include="JsonRoutines.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="JArray.txt" />
-    <Content Include="JObject.txt" />
-    <Content Include="JsonRoutines.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".editorconfig" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

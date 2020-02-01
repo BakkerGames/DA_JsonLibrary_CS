@@ -8,6 +8,13 @@ using System.Text;
 
 namespace DA_JsonLibrary_CS
 {
+    public enum JsonFormat
+    {
+        None,
+        Space,
+        Tab
+    }
+
     public static class JsonRoutines
     {
 
@@ -20,28 +27,32 @@ namespace DA_JsonLibrary_CS
 
         private const int _indentSpaceSize = 2;
 
-        public static string IndentSpace(int indentLevel)
+        public static string IndentSpace(int indentLevel, JsonFormat jf)
         {
-            // Purpose: Return a string with the proper number of space chars
+            // Purpose: Return a string with the proper number of spaces or tabs
             // Author : Scott Bakker
             // Created: 09/13/2019
-            if (indentLevel <= 0)
+            if (indentLevel <= 0 || jf == JsonFormat.None)
             {
                 return "";
+            }
+            if (jf == JsonFormat.Tab)
+            {
+                return new string('\t', indentLevel);
             }
             return new string(' ', indentLevel * _indentSpaceSize);
         }
 
-        public static string ValueToString(object value)
+        public static string ValueToString(object value, JsonFormat jf)
         {
             // Purpose: Return a value in proper JSON string format
             // Author : Scott Bakker
             // Created: 09/13/2019
             int indentLevel = -1; // don't indent
-            return ValueToString(value, ref indentLevel);
+            return ValueToString(value, ref indentLevel, jf);
         }
 
-        internal static string ValueToString(object value, ref int indentLevel)
+        internal static string ValueToString(object value, ref int indentLevel, JsonFormat jf)
         {
             // Purpose: Return a value in proper JSON string format
             // Author : Scott Bakker
@@ -59,7 +70,7 @@ namespace DA_JsonLibrary_CS
             {
                 StringBuilder result = new StringBuilder();
                 result.Append("[");
-                if (indentLevel >= 0)
+                if (jf != JsonFormat.None)
                 {
                     indentLevel++;
                 }
@@ -74,18 +85,18 @@ namespace DA_JsonLibrary_CS
                     {
                         addComma = true;
                     }
-                    if (indentLevel >= 0)
+                    if (jf != JsonFormat.None)
                     {
                         result.AppendLine();
-                        result.Append(IndentSpace(indentLevel));
+                        result.Append(IndentSpace(indentLevel, jf));
                     }
-                    result.Append(ValueToString(obj));
+                    result.Append(ValueToString(obj, jf));
                 }
                 if (indentLevel > 0)
                 {
                     indentLevel--;
                     result.AppendLine();
-                    result.Append(IndentSpace(indentLevel));
+                    result.Append(IndentSpace(indentLevel, jf));
                 }
                 result.Append("]");
                 return result.ToString();
@@ -108,7 +119,7 @@ namespace DA_JsonLibrary_CS
             {
                 StringBuilder result = new StringBuilder();
                 result.Append("[");
-                if (indentLevel >= 0)
+                if (jf != JsonFormat.None)
                 {
                     indentLevel++;
                 }
@@ -123,19 +134,19 @@ namespace DA_JsonLibrary_CS
                     {
                         addComma = true;
                     }
-                    if (indentLevel >= 0)
+                    if (jf != JsonFormat.None)
                     {
                         result.AppendLine();
-                        result.Append(IndentSpace(indentLevel));
+                        result.Append(IndentSpace(indentLevel, jf));
                     }
                     object obj = ((Array)value).GetValue(i);
-                    result.Append(ValueToString(obj));
+                    result.Append(ValueToString(obj, jf));
                 }
                 if (indentLevel > 0)
                 {
                     indentLevel--;
                     result.AppendLine();
-                    result.Append(IndentSpace(indentLevel));
+                    result.Append(IndentSpace(indentLevel, jf));
                 }
                 result.Append("]");
                 return result.ToString();
@@ -209,11 +220,11 @@ namespace DA_JsonLibrary_CS
             }
             if (t == typeof(JObject))
             {
-                return ((JObject)value).ToStringFormatted(ref indentLevel);
+                return ((JObject)value).ToString(ref indentLevel, jf);
             }
             if (t == typeof(JArray))
             {
-                return ((JArray)value).ToStringFormatted(ref indentLevel);
+                return ((JArray)value).ToString(ref indentLevel, jf);
             }
             if (t == typeof(byte) ||
                 t == typeof(sbyte) ||

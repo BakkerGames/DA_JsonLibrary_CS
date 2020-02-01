@@ -8,7 +8,7 @@
 //        : The function ToStringSorted() may be used to return a sorted list, but will be
 //          somewhat slower due to overhead. The ordering is not specified here but it
 //          should be consistent across calls.
-//        : The function ToStringFormatted() will return a string representation with
+//        : The function ToString(JsonFormat.Space) will return a string representation with
 //          whitespace added. Two spaces are used for indenting, and CRLF between lines.
 
 using System;
@@ -28,6 +28,15 @@ namespace DA_JsonLibrary_CS
             // Author : Scott Bakker
             // Created: 09/13/2019
             _data = new Dictionary<string, object>();
+        }
+
+        public JObject(JObject jo)
+        {
+            // Purpose: Create new JObject object
+            // Author : Scott Bakker
+            // Created: 09/13/2019
+            _data = new Dictionary<string, object>();
+            this.Merge(jo);
         }
 
         public IEnumerator<string> GetEnumerator()
@@ -190,15 +199,15 @@ namespace DA_JsonLibrary_CS
                 {
                     addComma = true;
                 }
-                result.Append(JsonRoutines.ValueToString(kv.Key));
+                result.Append(JsonRoutines.ValueToString(kv.Key, JsonFormat.None));
                 result.Append(":");
-                result.Append(JsonRoutines.ValueToString(kv.Value));
+                result.Append(JsonRoutines.ValueToString(kv.Value, JsonFormat.None));
             }
             result.Append("}");
             return result.ToString();
         }
 
-        public string ToStringSorted()
+        public string ToStringSorted(JsonFormat jf)
         {
             // Purpose: Sort the keys before returning as a string
             // Author : Scott Bakker
@@ -217,24 +226,24 @@ namespace DA_JsonLibrary_CS
                 {
                     addComma = true;
                 }
-                result.Append(JsonRoutines.ValueToString(sorted.GetKey(i)));
+                result.Append(JsonRoutines.ValueToString(sorted.GetKey(i), jf));
                 result.Append(":");
-                result.Append(JsonRoutines.ValueToString(sorted.GetByIndex(i)));
+                result.Append(JsonRoutines.ValueToString(sorted.GetByIndex(i), jf));
             }
             result.Append("}");
             return result.ToString();
         }
 
-        public string ToStringFormatted()
+        public string ToString(JsonFormat jf)
         {
             // Purpose: Convert this JObject into a string with formatting
             // Author : Scott Bakker
             // Created: 10/17/2019
             int indentLevel = 0;
-            return ToStringFormatted(ref indentLevel);
+            return ToString(ref indentLevel, jf);
         }
 
-        internal string ToStringFormatted(ref int indentLevel)
+        internal string ToString(ref int indentLevel, JsonFormat jf)
         {
             // Purpose: Convert this JObject into a string with formatting
             // Author : Scott Bakker
@@ -245,7 +254,7 @@ namespace DA_JsonLibrary_CS
             }
             StringBuilder result = new StringBuilder();
             result.Append("{");
-            if (indentLevel >= 0)
+            if (jf != JsonFormat.None)
             {
                 indentLevel++;
                 result.AppendLine();
@@ -256,7 +265,7 @@ namespace DA_JsonLibrary_CS
                 if (addComma)
                 {
                     result.Append(",");
-                    if (indentLevel >= 0)
+                    if (jf != JsonFormat.None)
                     {
                         result.AppendLine();
                     }
@@ -265,32 +274,28 @@ namespace DA_JsonLibrary_CS
                 {
                     addComma = true;
                 }
-                if (indentLevel >= 0)
+                if (jf != JsonFormat.None)
                 {
-                    result.Append(JsonRoutines.IndentSpace(indentLevel));
+                    result.Append(JsonRoutines.IndentSpace(indentLevel, jf));
                 }
-                result.Append(JsonRoutines.ValueToString(kv.Key));
+                result.Append(JsonRoutines.ValueToString(kv.Key, jf));
                 result.Append(":");
-                if (indentLevel >= 0)
+                if (jf != JsonFormat.None)
                 {
                     result.Append(" ");
                 }
-                result.Append(JsonRoutines.ValueToString(kv.Value, ref indentLevel));
+                result.Append(JsonRoutines.ValueToString(kv.Value, ref indentLevel, jf));
             }
-            if (indentLevel >= 0)
+            if (jf != JsonFormat.None)
             {
                 result.AppendLine();
                 if (indentLevel > 0)
                 {
                     indentLevel--;
                 }
-                result.Append(JsonRoutines.IndentSpace(indentLevel));
+                result.Append(JsonRoutines.IndentSpace(indentLevel, jf));
             }
             result.Append("}");
-            if (indentLevel == 0)
-            {
-                result.AppendLine();  // crlf at end of file
-            }
             return result.ToString();
         }
 
@@ -332,6 +337,7 @@ namespace DA_JsonLibrary_CS
                 {
                     // this logic ignores extra commas, but is ok
                     pos++;
+                    continue;
                 }
                 string tempKey = JsonRoutines.GetToken(ref pos, value);
                 if (string.IsNullOrEmpty(tempKey) || tempKey == "\"\"")
