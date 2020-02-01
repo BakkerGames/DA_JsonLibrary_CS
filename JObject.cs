@@ -1,4 +1,17 @@
-﻿using System;
+﻿// Purpose: Provide a JSON Object class
+// Author : Scott Bakker
+// Created: 09/13/2019
+
+// Notes  : The keys in this JObject implementation are case sensitive, so "abc" <> "ABC".
+//        : The items in this JObject are NOT ordered in any way. Specifically, successive
+//          calls to ToString() may not return the same results.
+//        : The function ToStringSorted() may be used to return a sorted list, but will be
+//          somewhat slower due to overhead. The ordering is not specified here but it
+//          should be consistent across calls.
+//        : The function ToStringFormatted() will return a string representation with
+//          whitespace added. Two spaces are used for indenting, and CRLF between lines.
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -190,7 +203,26 @@ namespace DA_JsonLibrary_CS
             // Purpose: Sort the keys before returning as a string
             // Author : Scott Bakker
             // Created: 10/17/2019
-            throw new NotImplementedException();
+            StringBuilder result = new StringBuilder();
+            result.Append("{");
+            SortedList sorted = new SortedList(_data);
+            bool addComma = false;
+            for (int i = 0; i < sorted.Count - 1; i++)
+            {
+                if (addComma)
+                {
+                    result.Append(",");
+                }
+                else
+                {
+                    addComma = true;
+                }
+                result.Append(JsonRoutines.ValueToString(sorted.GetKey(i)));
+                result.Append(":");
+                result.Append(JsonRoutines.ValueToString(sorted.GetByIndex(i)));
+            }
+            result.Append("}");
+            return result.ToString();
         }
 
         public string ToStringFormatted()
