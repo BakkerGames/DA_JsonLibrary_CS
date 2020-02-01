@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Purpose: Provide a set of routines to support JSON Object and JSON Array classes
+// Author : Scott Bakker
+// Created: 09/13/2019
+
+using System;
 using System.Collections;
 using System.Text;
 

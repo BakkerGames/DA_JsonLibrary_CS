@@ -207,7 +207,59 @@ namespace DA_JsonLibrary_CS
             // Purpose: Convert this JObject into a string with formatting
             // Author : Scott Bakker
             // Created: 10/17/2019
-            throw new NotImplementedException();
+            if (_data.Count == 0)
+            {
+                return "{}";
+            }
+            StringBuilder result = new StringBuilder();
+            result.Append("{");
+            if (indentLevel>=0)
+            {
+                indentLevel++;
+                result.AppendLine();
+            }
+            bool addComma = false;
+            foreach (KeyValuePair<string, object> kv in _data)
+            {
+                if (addComma)
+                {
+                    result.Append(",");
+                    if (indentLevel >= 0)
+                    {
+                        result.AppendLine();
+                    }
+                }
+                else
+                {
+                    addComma = true;
+                }
+                if (indentLevel >= 0)
+                {
+                    result.Append(JsonRoutines.IndentSpace(indentLevel));
+                }
+                result.Append(JsonRoutines.ValueToString(kv.Key ));
+                result.Append(":");
+                if (indentLevel >= 0)
+                {
+                    result.Append(" ");
+                }
+                result.Append(JsonRoutines.ValueToString(kv.Value, ref indentLevel));
+            }
+            if (indentLevel >= 0)
+            {
+                result.AppendLine();
+                if (indentLevel > 0)
+                {
+                    indentLevel--;
+                }
+                result.Append(JsonRoutines.IndentSpace(indentLevel));
+            }
+            result.Append("}");
+            if (indentLevel == 0)
+            {
+                result.AppendLine();  // crlf at end of file
+            }
+            return result.ToString();
         }
 
         public static JObject Parse(string value)
