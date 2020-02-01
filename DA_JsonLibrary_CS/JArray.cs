@@ -158,6 +158,30 @@ namespace DA_JsonLibrary_CS
             return ToString(ref indentLevel, jf);
         }
 
+        public static JArray Parse(string value)
+        {
+            // Purpose: Convert a string into a JArray
+            // Author : Scott Bakker
+            // Created: 09/13/2019
+            int pos = 0;
+            return Parse(ref pos, value);
+        }
+
+        public static JArray Clone(JArray ja)
+        {
+            // Purpose: Clones a JArray
+            // Author : Scott Bakker
+            // Created: 09/20/2019
+            JArray result = new JArray();
+            if (ja != null && ja._data != null)
+            {
+                result._data = new List<object>(ja._data);
+            }
+            return result;
+        }
+
+        #region internal routines
+
         internal string ToString(ref int indentLevel, JsonFormat jf)
         {
             // Purpose: Convert this JArray into a string with formatting
@@ -208,16 +232,7 @@ namespace DA_JsonLibrary_CS
             return result.ToString();
         }
 
-        public static JArray Parse(string value)
-        {
-            // Purpose: Convert a string into a JArray
-            // Author : Scott Bakker
-            // Created: 09/13/2019
-            int pos = 0;
-            return Parse(ref pos, value);
-        }
-
-        public static JArray Parse(ref int pos, string value)
+        internal static JArray Parse(ref int pos, string value)
         {
             // Purpose: Convert a partial string into a JArray
             // Author : Scott Bakker
@@ -268,17 +283,7 @@ namespace DA_JsonLibrary_CS
             return result;
         }
 
-        public static JArray Clone(JArray ja)
-        {
-            // Purpose: Clones a JArray
-            // Author : Scott Bakker
-            // Created: 09/20/2019
-            JArray result = new JArray();
-            if (ja != null && ja._data != null)
-            {
-                result._data = new List<object>(ja._data);
-            }
-            return result;
-        }
+        #endregion
+
     }
 }

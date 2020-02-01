@@ -207,33 +207,6 @@ namespace DA_JsonLibrary_CS
             return result.ToString();
         }
 
-        public string ToStringSorted(JsonFormat jf)
-        {
-            // Purpose: Sort the keys before returning as a string
-            // Author : Scott Bakker
-            // Created: 10/17/2019
-            StringBuilder result = new StringBuilder();
-            result.Append("{");
-            SortedList sorted = new SortedList(_data);
-            bool addComma = false;
-            for (int i = 0; i < sorted.Count - 1; i++)
-            {
-                if (addComma)
-                {
-                    result.Append(",");
-                }
-                else
-                {
-                    addComma = true;
-                }
-                result.Append(JsonRoutines.ValueToString(sorted.GetKey(i), jf));
-                result.Append(":");
-                result.Append(JsonRoutines.ValueToString(sorted.GetByIndex(i), jf));
-            }
-            result.Append("}");
-            return result.ToString();
-        }
-
         public string ToString(JsonFormat jf)
         {
             // Purpose: Convert this JObject into a string with formatting
@@ -242,6 +215,30 @@ namespace DA_JsonLibrary_CS
             int indentLevel = 0;
             return ToString(ref indentLevel, jf);
         }
+
+        public static JObject Parse(string value)
+        {
+            // Purpose: Convert a string into a JObject
+            // Author : Scott Bakker
+            // Created: 09/13/2019
+            int pos = 0;
+            return Parse(ref pos, value);
+        }
+
+        public static JObject Clone(JObject jo)
+        {
+            // Purpose: Clones a JObject
+            // Author : Scott Bakker
+            // Created: 09/20/2019
+            JObject result = new JObject();
+            if (jo != null && jo._data != null)
+            {
+                result._data = new Dictionary<string, object>(jo._data);
+            }
+            return result;
+        }
+
+        #region internal routines
 
         internal string ToString(ref int indentLevel, JsonFormat jf)
         {
@@ -299,16 +296,7 @@ namespace DA_JsonLibrary_CS
             return result.ToString();
         }
 
-        public static JObject Parse(string value)
-        {
-            // Purpose: Convert a string into a JObject
-            // Author : Scott Bakker
-            // Created: 09/13/2019
-            int pos = 0;
-            return Parse(ref pos, value);
-        }
-
-        public static JObject Parse(ref int pos, string value)
+        internal static JObject Parse(ref int pos, string value)
         {
             // Purpose: Convert a partial string into a JObject
             // Author : Scott Bakker
@@ -378,17 +366,7 @@ namespace DA_JsonLibrary_CS
             return result;
         }
 
-        public static JObject Clone(JObject jo)
-        {
-            // Purpose: Clones a JObject
-            // Author : Scott Bakker
-            // Created: 09/20/2019
-            JObject result = new JObject();
-            if (jo != null && jo._data != null)
-            {
-                result._data = new Dictionary<string, object>(jo._data);
-            }
-            return result;
-        }
+        #endregion
+
     }
 }

@@ -15,7 +15,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "[]";
             JArray ja = new JArray();
             // act
-            actualValue = ja.ToString(JsonFormat.Space);
+            actualValue = ja.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -69,7 +69,7 @@ namespace UnitTestProjectJson_CS
             JArray ja = new JArray();
             ja.Add(null);
             // act
-            actualValue = ja.ToString(JsonFormat.Space);
+            actualValue = ja.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -205,7 +205,7 @@ namespace UnitTestProjectJson_CS
             ja.Add(123.45);
             ja.Add(null);
             // act
-            actualValue = ja.ToString(JsonFormat.Space);
+            actualValue = ja.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -218,7 +218,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "[]";
             JArray ja = JArray.Parse(expectedValue);
             // act
-            actualValue = ja.ToString(JsonFormat.Space);
+            actualValue = ja.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -231,7 +231,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "[\r\n  \"abc\",\r\n  123.45,\r\n  null\r\n]";
             JArray ja = JArray.Parse(expectedValue);
             // act
-            actualValue = ja.ToString(JsonFormat.Space);
+            actualValue = ja.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }

@@ -11,12 +11,14 @@ namespace DA_JsonLibrary_CS
     public enum JsonFormat
     {
         None,
-        Space,
-        Tab
+        Indent,
+        Tabs
     }
 
     public static class JsonRoutines
     {
+
+        #region constants
 
         private const string _dateFormat = "yyyy-MM-dd";
         private const string _timeFormat = "HH:mm:ss";
@@ -24,10 +26,14 @@ namespace DA_JsonLibrary_CS
         private const string _dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
         private const string _dateTimeMilliFormat = "yyyy-MM-dd HH:mm:ss.fff";
         private const string _dateTimeOffsetFormat = "O";
-
+        
         private const int _indentSpaceSize = 2;
 
-        public static string IndentSpace(int indentLevel, JsonFormat jf)
+        #endregion 
+
+        #region internal routines
+        
+        internal static string IndentSpace(int indentLevel, JsonFormat jf)
         {
             // Purpose: Return a string with the proper number of spaces or tabs
             // Author : Scott Bakker
@@ -36,14 +42,14 @@ namespace DA_JsonLibrary_CS
             {
                 return "";
             }
-            if (jf == JsonFormat.Tab)
+            if (jf == JsonFormat.Tabs)
             {
                 return new string('\t', indentLevel);
             }
             return new string(' ', indentLevel * _indentSpaceSize);
         }
 
-        public static string ValueToString(object value, JsonFormat jf)
+        internal static string ValueToString(object value, JsonFormat jf)
         {
             // Purpose: Return a value in proper JSON string format
             // Author : Scott Bakker
@@ -527,6 +533,10 @@ namespace DA_JsonLibrary_CS
             }
         }
 
+        #endregion
+
+        #region private routines
+
         private static string ToJsonChar(char c)
         {
             // Purpose: Return a character in proper JSON format
@@ -608,5 +618,7 @@ namespace DA_JsonLibrary_CS
             }
             return false;
         }
+
+        #endregion
     }
 }

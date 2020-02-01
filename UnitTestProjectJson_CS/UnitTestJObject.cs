@@ -16,7 +16,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{}";
             JObject jo = new JObject();
             // act
-            actualValue = jo.ToString(JsonFormat.Space);
+            actualValue = jo.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -140,7 +140,7 @@ namespace UnitTestProjectJson_CS
             JObject jo = new JObject();
             jo.Add("key", 123);
             // act
-            actualValue = jo.ToString(JsonFormat.Space);
+            actualValue = jo.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -297,7 +297,7 @@ namespace UnitTestProjectJson_CS
             jo.Add("key", 123);
             jo.Add("otherkey", 789.12);
             // act
-            actualValue = jo.ToString(JsonFormat.Space);
+            actualValue = jo.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -310,7 +310,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{}";
             JObject jo = JObject.Parse(expectedValue);
             // act
-            actualValue = jo.ToString(JsonFormat.Space);
+            actualValue = jo.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -323,7 +323,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{\r\n  \"key\": 123,\r\n  \"otherkey\": 789.12\r\n}";
             JObject jo = JObject.Parse(expectedValue);
             // act
-            actualValue = jo.ToString(JsonFormat.Space);
+            actualValue = jo.ToString(JsonFormat.Indent);
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
