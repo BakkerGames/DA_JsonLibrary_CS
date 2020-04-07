@@ -1,6 +1,17 @@
 ﻿// Purpose: Provide a set of routines to support JSON Object and JSON Array classes
 // Author : Scott Bakker
 // Created: 09/13/2019
+// LastMod: 04/06/2020
+
+// --- Notes  : DateTime and DateTimeOffset are stored in JObject and JArray properly
+//              as objects of those types.
+//            : When JObject/JArray are converted to a string, the formats below are
+//              used depending on the value type and contents.
+//            : However, when converting back from a string, any value which passes
+//              the IsDateTimeValue() or IsDateTimeOffsetValue() check will be
+//              converted to a DateTime or DateTimeOffset, even if it had only been
+//              a string value before. This could have unanticipated consequences.
+//              Be careful storing strings which look like dates.
 
 using System;
 using System.Collections;
@@ -8,13 +19,6 @@ using System.Text;
 
 namespace DA_JsonLibrary_CS
 {
-    public enum JsonFormat
-    {
-        None,
-        Indent,
-        Tabs
-    }
-
     public static class JsonRoutines
     {
 
@@ -25,40 +29,43 @@ namespace DA_JsonLibrary_CS
         private const string _timeMilliFormat = "HH:mm:ss.fff";
         private const string _dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
         private const string _dateTimeMilliFormat = "yyyy-MM-dd HH:mm:ss.fff";
-        private const string _dateTimeOffsetFormat = "O";
-        
+
+        // The "T" in the 11th position is used to indicate DateTimeOffset
+        private const string _dateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:sszzz";
+        private const string _dateTimeOffsetMilliFormat = "yyyy-MM-ddTHH:mm:ss.fffffffzzz";
+
         private const int _indentSpaceSize = 2;
 
-        #endregion 
+        #endregion
 
-        #region internal routines
-        
-        internal static string IndentSpace(int indentLevel, JsonFormat jf)
+        #region public routines
+
+        public static string IndentSpace(int indentLevel)
         {
             // Purpose: Return a string with the proper number of spaces or tabs
             // Author : Scott Bakker
             // Created: 09/13/2019
-            if (indentLevel <= 0 || jf == JsonFormat.None)
+            if (indentLevel <= 0)
             {
                 return "";
-            }
-            if (jf == JsonFormat.Tabs)
-            {
-                return new string('\t', indentLevel);
             }
             return new string(' ', indentLevel * _indentSpaceSize);
         }
 
-        internal static string ValueToString(object value, JsonFormat jf)
+        public static string ValueToString(object value)
         {
             // Purpose: Return a value in proper JSON string format
             // Author : Scott Bakker
             // Created: 09/13/2019
             int indentLevel = -1; // don't indent
-            return ValueToString(value, ref indentLevel, jf);
+            return ValueToString(value, ref indentLevel);
         }
 
-        internal static string ValueToString(object value, ref int indentLevel, JsonFormat jf)
+        #endregion 
+
+        #region internal routines
+
+        internal static string ValueToString(object value, ref int indentLevel)
         {
             // Purpose: Return a value in proper JSON string format
             // Author : Scott Bakker
@@ -69,6 +76,7 @@ namespace DA_JsonLibrary_CS
                 return "null";
             }
 
+            // Get the type for comparison
             Type t = value.GetType();
 
             // Check for generic list types
@@ -76,7 +84,7 @@ namespace DA_JsonLibrary_CS
             {
                 StringBuilder result = new StringBuilder();
                 result.Append("[");
-                if (jf != JsonFormat.None)
+                if (indentLevel >= 0)
                 {
                     indentLevel++;
                 }
@@ -91,32 +99,39 @@ namespace DA_JsonLibrary_CS
                     {
                         addComma = true;
                     }
-                    if (jf != JsonFormat.None)
+                    if (indentLevel >= 0)
                     {
                         result.AppendLine();
-                        result.Append(IndentSpace(indentLevel, jf));
                     }
-                    result.Append(ValueToString(obj, jf));
+                    if (indentLevel > 0)
+                    {
+                        result.Append(IndentSpace(indentLevel));
+                    }
+                    result.Append(ValueToString(obj));
                 }
-                if (indentLevel > 0)
+                if (indentLevel >= 0)
                 {
-                    indentLevel--;
                     result.AppendLine();
-                    result.Append(IndentSpace(indentLevel, jf));
+                    if (indentLevel > 0)
+                    {
+                        indentLevel--;
+                    }
+                    result.Append(IndentSpace(indentLevel));
                 }
                 result.Append("]");
                 return result.ToString();
             }
 
-            // Check for byte array, return as hex string "0x00..."
+            // Check for byte array, return as hex string "0x00..." with quotes
             if (t.IsArray && t == typeof(byte[]))
             {
                 StringBuilder result = new StringBuilder();
-                result.Append("0x");
+                result.Append("\"0x");
                 foreach (byte b in (byte[])value)
                 {
                     result.Append(b.ToString("x2", null));
                 }
+                result.Append("\"");
                 return result.ToString();
             }
 
@@ -125,7 +140,7 @@ namespace DA_JsonLibrary_CS
             {
                 StringBuilder result = new StringBuilder();
                 result.Append("[");
-                if (jf != JsonFormat.None)
+                if (indentLevel >= 0)
                 {
                     indentLevel++;
                 }
@@ -140,25 +155,29 @@ namespace DA_JsonLibrary_CS
                     {
                         addComma = true;
                     }
-                    if (jf != JsonFormat.None)
+                    if (indentLevel >= 0)
                     {
                         result.AppendLine();
-                        result.Append(IndentSpace(indentLevel, jf));
+                        result.Append(IndentSpace(indentLevel));
                     }
                     object obj = ((Array)value).GetValue(i);
-                    result.Append(ValueToString(obj, jf));
+                    result.Append(ValueToString(obj));
                 }
-                if (indentLevel > 0)
+                if (indentLevel >= 0)
                 {
-                    indentLevel--;
                     result.AppendLine();
-                    result.Append(IndentSpace(indentLevel, jf));
+                    if (indentLevel > 0)
+                    {
+                        indentLevel--;
+                    }
+                    result.Append(IndentSpace(indentLevel));
                 }
                 result.Append("]");
                 return result.ToString();
             }
 
             // Check for individual types
+
             if (t == typeof(string))
             {
                 StringBuilder result = new StringBuilder();
@@ -170,6 +189,7 @@ namespace DA_JsonLibrary_CS
                 result.Append("\"");
                 return result.ToString();
             }
+
             if (t == typeof(char))
             {
                 StringBuilder result = new StringBuilder();
@@ -178,10 +198,12 @@ namespace DA_JsonLibrary_CS
                 result.Append("\"");
                 return result.ToString();
             }
+
             if (t == typeof(Guid))
             {
-                return $"\"{value.ToString()}\"";
+                return $"\"{value}\"";
             }
+
             if (t == typeof(bool))
             {
                 if ((bool)value)
@@ -193,6 +215,19 @@ namespace DA_JsonLibrary_CS
                     return "false";
                 }
             }
+
+            if (t == typeof(DateTimeOffset))
+            {
+                if (((DateTimeOffset)value).Millisecond == 0)
+                {
+                    return $"\"{((DateTimeOffset)value).ToString(_dateTimeOffsetFormat, null)}\"";
+                }
+                else
+                {
+                    return $"\"{((DateTimeOffset)value).ToString(_dateTimeOffsetMilliFormat, null)}\"";
+                }
+            }
+
             if (t == typeof(DateTime))
             {
                 DateTime d = (DateTime)value;
@@ -220,18 +255,24 @@ namespace DA_JsonLibrary_CS
                     return $"\"{d.ToString(_dateTimeMilliFormat, null)}\"";
                 }
             }
-            if (t == typeof(DateTimeOffset))
-            {
-                return $"\"{((DateTimeOffset)value).ToString(_dateTimeOffsetFormat, null)}\"";
-            }
+
             if (t == typeof(JObject))
             {
-                return ((JObject)value).ToString(ref indentLevel, jf);
+                return ((JObject)value).ToStringFormatted(ref indentLevel);
             }
+
             if (t == typeof(JArray))
             {
-                return ((JArray)value).ToString(ref indentLevel, jf);
+                return ((JArray)value).ToStringFormatted(ref indentLevel);
             }
+
+            if (t == typeof(float) ||
+                t == typeof(double) ||
+                t == typeof(decimal))
+            {
+                return NormalizeDecimal(value.ToString());
+            }
+
             if (t == typeof(byte) ||
                 t == typeof(sbyte) ||
                 t == typeof(short) ||
@@ -239,16 +280,27 @@ namespace DA_JsonLibrary_CS
                 t == typeof(long) ||
                 t == typeof(ushort) ||
                 t == typeof(uint) ||
-                t == typeof(ulong) ||
-                t == typeof(float) ||
-                t == typeof(double) ||
-                t == typeof(decimal))
+                t == typeof(ulong))
             {
                 // Let ToString do all the work
                 return value.ToString();
             }
 
-            throw new SystemException($"JSON Error: Unknown object type: {t.ToString()}");
+            throw new SystemException($"JSON Error: Unknown object type: {t}");
+        }
+
+        internal static string NormalizeDecimal(string value)
+        {
+            if (value.Contains("E") || value.Contains("e"))
+            {
+                // Scientific notation, leave alone
+                return value;
+            }
+            if (!value.Contains("."))
+            {
+                return value;
+            }
+            return value.TrimEnd('0').TrimEnd('.');
         }
 
         internal static string FromJsonString(string value)
@@ -329,7 +381,7 @@ namespace DA_JsonLibrary_CS
             return result.ToString();
         }
 
-        internal static string GetToken(ref int pos, string value)
+        internal static string GetToken(string value, ref int pos)
         {
             // Purpose: Get a single token from string value for parsing
             // Author : Scott Bakker
@@ -342,7 +394,7 @@ namespace DA_JsonLibrary_CS
             }
             char c;
             // Ignore whitespece before token
-            SkipWhitespace(ref pos, value);
+            SkipWhitespace(value, ref pos);
             // Get first char, check for special symbols
             c = value[pos];
             pos++;
@@ -436,12 +488,21 @@ namespace DA_JsonLibrary_CS
             }
             try
             {
-                if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal))
+                if (value.StartsWith("\"", StringComparison.Ordinal) &&
+                    value.EndsWith("\"", StringComparison.Ordinal))
                 {
                     value = value.Substring(1, value.Length - 2); // remove quotes
-                    if (DateTime.TryParse(value, out DateTime tempDate))
+                    if (IsTimeOnlyValue(value))
                     {
-                        return tempDate;
+                        return value; // Return Time as a string
+                    }
+                    if (IsDateTimeOffsetValue(value))
+                    {
+                        return DateTimeOffset.Parse(value);
+                    }
+                    if (IsDateTimeValue(value))
+                    {
+                        return DateTime.Parse(value);
                     }
                     // Parse all escaped sequences to chars
                     return FromJsonString(value);
@@ -479,7 +540,7 @@ namespace DA_JsonLibrary_CS
             }
         }
 
-        internal static void SkipWhitespace(ref int pos, string value)
+        internal static void SkipWhitespace(string value, ref int pos)
         {
             // Purpose: Skip over any whitespace characters or any recognized comments
             // Author : Scott Bakker
@@ -531,6 +592,30 @@ namespace DA_JsonLibrary_CS
                 }
                 break;
             }
+        }
+
+        internal static bool IsWhitespaceString(string value)
+        {
+            // Purpose: Determine if a string contains only whitespace
+            // Author : Scott Bakker
+            // Created: 02/12/2020
+            // LastMod: 04/06/2020
+            if (value == null)
+            {
+                return true;
+            }
+            if (value.Length == 0)
+            {
+                return true;
+            }
+            foreach (char c in value)
+            {
+                if (!IsWhitespace(c))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         #endregion
@@ -615,6 +700,54 @@ namespace DA_JsonLibrary_CS
                 case '.':
                 case 'E': // also 'e' checked for above
                     return true;
+            }
+            return false;
+        }
+
+        private static bool IsTimeOnlyValue(string value)
+        {
+            // Purpose: Determine if value converts to a Time without a Date
+            // Author : Scott Bakker
+            // Created: 04/06/2020
+            if (value == null || value.Length == 0) return false;
+            if (!value.Contains(":")) return false;
+            if (value.Contains("/")) return false;
+            if (value.Contains("-")) return false;
+            // Try to convert using a dummy date
+            if (DateTime.TryParse($"{DateTime.MinValue:yyyy-MM-dd} {value}", out DateTime tempValue))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static bool IsDateTimeValue(string value)
+        {
+            // Purpose: Determine if value converts to a DateTime
+            // Author : Scott Bakker
+            // Created: 02/19/2020
+            if (value == null || value.Length == 0) return false;
+            if (DateTime.TryParse(value, out DateTime tempValue))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static bool IsDateTimeOffsetValue(string value)
+        {
+            // Purpose: Determine if value converts to a DateTimeOffset
+            // Author : Scott Bakker
+            // Created: 02/19/2020
+            if (value == null || value.Length == 0) return false;
+            // The "T" in the 11th position is used to indicate DateTimeOffset
+            if (value.Length < 11 || value[10] != 'T')
+            {
+                return false;
+            }
+            if (DateTimeOffset.TryParse(value, out DateTimeOffset tempValue))
+            {
+                return true;
             }
             return false;
         }

@@ -16,7 +16,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{}";
             JObject jo = new JObject();
             // act
-            actualValue = jo.ToString(JsonFormat.Indent);
+            actualValue = jo.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -140,7 +140,7 @@ namespace UnitTestProjectJson_CS
             JObject jo = new JObject();
             jo.Add("key", 123);
             // act
-            actualValue = jo.ToString(JsonFormat.Indent);
+            actualValue = jo.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -297,7 +297,7 @@ namespace UnitTestProjectJson_CS
             jo.Add("key", 123);
             jo.Add("otherkey", 789.12);
             // act
-            actualValue = jo.ToString(JsonFormat.Indent);
+            actualValue = jo.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -310,7 +310,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{}";
             JObject jo = JObject.Parse(expectedValue);
             // act
-            actualValue = jo.ToString(JsonFormat.Indent);
+            actualValue = jo.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -323,7 +323,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{\r\n  \"key\": 123,\r\n  \"otherkey\": 789.12\r\n}";
             JObject jo = JObject.Parse(expectedValue);
             // act
-            actualValue = jo.ToString(JsonFormat.Indent);
+            actualValue = jo.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -366,14 +366,15 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{\"firstitem\":1,\"seconditem\":2,\"thirditem\":3,\"fourthitem\":4}";
             JObject jo1 = new JObject()
             {
-                { "firstitem", 1 },
-                { "seconditem", 2 }
-            };
-            JObject jo2 = new JObject(jo1)
-            {
                 { "thirditem", 3 },
                 { "fourthitem", 4 }
             };
+            JObject jo2 = new JObject()
+            {
+                { "firstitem", 1 },
+                { "seconditem", 2 }
+            };
+            jo2.Merge(jo1);
             // act
             actualValue = jo2.ToString();
             // assert

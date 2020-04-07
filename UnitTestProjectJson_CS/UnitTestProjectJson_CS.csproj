@@ -49,6 +49,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="UnitTestToString.cs" />
     <Compile Include="UnitTestParse.cs" />
     <Compile Include="UnitTestJObject.cs" />

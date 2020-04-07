@@ -1,5 +1,4 @@
-﻿using System;
-using DA_JsonLibrary_CS;
+﻿using DA_JsonLibrary_CS;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTestProjectJson_CS
@@ -25,21 +24,14 @@ namespace UnitTestProjectJson_CS
         public void TestNewJArrayToStringNone()
         {
             JArray testObj = new JArray();
-            Assert.AreEqual(testObj.ToString(JsonFormat.None), "[]");
+            Assert.AreEqual(testObj.ToString(), "[]");
         }
 
         [TestMethod]
         public void TestNewJArrayToStringIndent()
         {
             JArray testObj = new JArray();
-            Assert.AreEqual(testObj.ToString(JsonFormat.Indent), "[]");
-        }
-
-        [TestMethod]
-        public void TestNewJArrayToStringTabs()
-        {
-            JArray testObj = new JArray();
-            Assert.AreEqual(testObj.ToString(JsonFormat.Tabs), "[]");
+            Assert.AreEqual(testObj.ToStringFormatted(), "[]");
         }
 
         [TestMethod]
@@ -157,21 +149,14 @@ namespace UnitTestProjectJson_CS
         public void TestNewJObjectToStringNone()
         {
             JObject testObj = new JObject();
-            Assert.AreEqual(testObj.ToString(JsonFormat.None), "{}");
+            Assert.AreEqual(testObj.ToString(), "{}");
         }
 
         [TestMethod]
         public void TestNewJObjectToStringIndent()
         {
             JObject testObj = new JObject();
-            Assert.AreEqual(testObj.ToString(JsonFormat.Indent), "{}");
-        }
-
-        [TestMethod]
-        public void TestNewJObjectToStringTabs()
-        {
-            JObject testObj = new JObject();
-            Assert.AreEqual(testObj.ToString(JsonFormat.Tabs), "{}");
+            Assert.AreEqual(testObj.ToStringFormatted(), "{}");
         }
 
         [TestMethod]
@@ -187,7 +172,7 @@ namespace UnitTestProjectJson_CS
         {
             JObject testObj = new JObject();
             testObj.Add("Hello", 123);
-            Assert.AreEqual(testObj.ToString(JsonFormat.None), "{\"Hello\":123}");
+            Assert.AreEqual(testObj.ToString(), "{\"Hello\":123}");
         }
 
         [TestMethod]
@@ -195,15 +180,7 @@ namespace UnitTestProjectJson_CS
         {
             JObject testObj = new JObject();
             testObj.Add("Hello", 123);
-            Assert.AreEqual(testObj.ToString(JsonFormat.Indent), "{\r\n  \"Hello\": 123\r\n}");
-        }
-
-        [TestMethod]
-        public void TestNewJObjectToStringOneItemNumTabs()
-        {
-            JObject testObj = new JObject();
-            testObj.Add("Hello", 123);
-            Assert.AreEqual(testObj.ToString(JsonFormat.Tabs), "{\r\n\t\"Hello\": 123\r\n}");
+            Assert.AreEqual(testObj.ToStringFormatted(), "{\r\n  \"Hello\": 123\r\n}");
         }
 
         [TestMethod]
@@ -221,7 +198,7 @@ namespace UnitTestProjectJson_CS
             JObject testObj = new JObject();
             testObj.Add("Hello", 123);
             testObj.Add("World", 999);
-            Assert.AreEqual(testObj.ToString(JsonFormat.None), "{\"Hello\":123,\"World\":999}");
+            Assert.AreEqual(testObj.ToString(), "{\"Hello\":123,\"World\":999}");
         }
 
         [TestMethod]
@@ -230,16 +207,7 @@ namespace UnitTestProjectJson_CS
             JObject testObj = new JObject();
             testObj.Add("Hello", 123);
             testObj.Add("World", 999);
-            Assert.AreEqual(testObj.ToString(JsonFormat.Indent), "{\r\n  \"Hello\": 123,\r\n  \"World\": 999\r\n}");
-        }
-
-        [TestMethod]
-        public void TestNewJObjectToStringTwoItemNumTabs()
-        {
-            JObject testObj = new JObject();
-            testObj.Add("Hello", 123);
-            testObj.Add("World", 999);
-            Assert.AreEqual(testObj.ToString(JsonFormat.Tabs), "{\r\n\t\"Hello\": 123,\r\n\t\"World\": 999\r\n}");
+            Assert.AreEqual(testObj.ToStringFormatted(), "{\r\n  \"Hello\": 123,\r\n  \"World\": 999\r\n}");
         }
     }
 }

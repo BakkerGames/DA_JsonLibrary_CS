@@ -15,7 +15,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "[]";
             JArray ja = new JArray();
             // act
-            actualValue = ja.ToString(JsonFormat.Indent);
+            actualValue = ja.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -69,7 +69,7 @@ namespace UnitTestProjectJson_CS
             JArray ja = new JArray();
             ja.Add(null);
             // act
-            actualValue = ja.ToString(JsonFormat.Indent);
+            actualValue = ja.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -205,7 +205,7 @@ namespace UnitTestProjectJson_CS
             ja.Add(123.45);
             ja.Add(null);
             // act
-            actualValue = ja.ToString(JsonFormat.Indent);
+            actualValue = ja.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -218,7 +218,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "[]";
             JArray ja = JArray.Parse(expectedValue);
             // act
-            actualValue = ja.ToString(JsonFormat.Indent);
+            actualValue = ja.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -231,7 +231,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "[\r\n  \"abc\",\r\n  123.45,\r\n  null\r\n]";
             JArray ja = JArray.Parse(expectedValue);
             // act
-            actualValue = ja.ToString(JsonFormat.Indent);
+            actualValue = ja.ToStringFormatted();
             // assert
             Assert.AreEqual(expectedValue, actualValue);
         }
@@ -275,7 +275,7 @@ namespace UnitTestProjectJson_CS
             JArray ja1 = new JArray();
             ja1.Add(1);
             ja1.Add(2);
-            JArray ja2 = new JArray(ja1);
+            JArray ja2 = JArray.Clone(ja1);
             ja2.Add(3);
             ja2.Add(4);
             // act
