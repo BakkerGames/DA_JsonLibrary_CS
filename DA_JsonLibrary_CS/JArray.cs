@@ -27,6 +27,15 @@ namespace DA_JsonLibrary_CS
             _data = new List<object>();
         }
 
+        public JArray(IEnumerable list)
+        {
+            // Purpose: Create new JArray object with values
+            // Author : Scott Bakker
+            // Created: 09/13/2019
+            _data = new List<object>();
+            Append(list);
+        }
+
         public IEnumerator<object> GetEnumerator()
         {
             // Purpose: Provide IEnumerable access directly to _data

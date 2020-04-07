@@ -366,15 +366,14 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{\"firstitem\":1,\"seconditem\":2,\"thirditem\":3,\"fourthitem\":4}";
             JObject jo1 = new JObject()
             {
-                { "thirditem", 3 },
-                { "fourthitem", 4 }
-            };
-            JObject jo2 = new JObject()
-            {
                 { "firstitem", 1 },
                 { "seconditem", 2 }
             };
-            jo2.Merge(jo1);
+            JObject jo2 = new JObject(jo1)
+            {
+                { "thirditem", 3 },
+                { "fourthitem", 4 }
+            };
             // act
             actualValue = jo2.ToString();
             // assert

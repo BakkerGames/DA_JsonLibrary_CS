@@ -32,6 +32,15 @@ namespace DA_JsonLibrary_CS
             _data = new Dictionary<string, object>();
         }
 
+        public JObject(JObject jo)
+        {
+            // Purpose: Create new JObject object with values
+            // Author : Scott Bakker
+            // Created: 09/13/2019
+            _data = new Dictionary<string, object>();
+            Merge(jo);
+        }
+
         public IEnumerator<string> GetEnumerator()
         {
             // Purpose: Provide IEnumerable access directly to _data.Keys

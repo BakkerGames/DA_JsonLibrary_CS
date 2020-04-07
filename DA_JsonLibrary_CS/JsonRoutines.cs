@@ -42,7 +42,7 @@ namespace DA_JsonLibrary_CS
 
         public static string IndentSpace(int indentLevel)
         {
-            // Purpose: Return a string with the proper number of spaces or tabs
+            // Purpose: Return a string with the proper number of spaces
             // Author : Scott Bakker
             // Created: 09/13/2019
             if (indentLevel <= 0)
