@@ -7,11 +7,12 @@
     <ProjectGuid>{96CC0CEA-619A-4F03-9225-024B33F48725}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DA_JsonLibrary_CS</RootNamespace>
+    <RootNamespace>JsonLibrary</RootNamespace>
     <AssemblyName>DA_JsonLibrary_CS</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,4 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>If "$(ConfigurationName)" == "Release" XCOPY /Y "$(TargetPath)*" "$(ProjectDir)..\..\EXE"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
