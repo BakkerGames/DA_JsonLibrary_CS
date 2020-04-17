@@ -1,7 +1,7 @@
 ﻿// Purpose: Provide a set of routines to support JSON Object and JSON Array classes
 // Author : Scott Bakker
 // Created: 09/13/2019
-// LastMod: 04/06/2020
+// LastMod: 04/17/2020
 
 // --- Notes  : DateTime and DateTimeOffset are stored in JObject and JArray properly
 //              as objects of those types.
@@ -17,7 +17,7 @@ using System;
 using System.Collections;
 using System.Text;
 
-namespace DA_JsonLibrary_CS
+namespace JsonLibrary
 {
     public static class JsonRoutines
     {
@@ -42,7 +42,7 @@ namespace DA_JsonLibrary_CS
 
         public static string IndentSpace(int indentLevel)
         {
-            // Purpose: Return a string with the proper number of spaces
+            // Purpose: Return a string with the proper number of spaces or tabs
             // Author : Scott Bakker
             // Created: 09/13/2019
             if (indentLevel <= 0)
@@ -381,27 +381,25 @@ namespace DA_JsonLibrary_CS
             return result.ToString();
         }
 
-        internal static string GetToken(string value, ref int pos)
+        internal static string GetToken(CharReader reader)
         {
             // Purpose: Get a single token from string value for parsing
             // Author : Scott Bakker
             // Created: 09/13/2019
+            // LastMod: 04/17/2020
             // Notes  : Does not do escaped character expansion here, just passes exact value.
             //        : Properly handles \" within strings properly this way, but nothing else.
-            if (value == null)
+            if (reader == null || reader.Peek() == -1)
             {
                 return null;
             }
             char c;
-            // Ignore whitespece before token
-            SkipWhitespace(value, ref pos);
-            // Get first char, check for special symbols
-            c = value[pos];
-            pos++;
+            // Ignore whitespace before token
+            SkipWhitespace(reader);
             // Stop if one-character JSON symbol found
-            if (IsJsonSymbol(c))
+            if (IsJsonSymbol((char)reader.Peek()))
             {
-                return c.ToString();
+                return ((char)reader.Read()).ToString();
             }
             // Have to build token char by char
             StringBuilder result = new StringBuilder();
@@ -409,25 +407,28 @@ namespace DA_JsonLibrary_CS
             bool lastBackslash = false;
             do
             {
+                // Peek char for this loop
+                c = (char)reader.Peek();
                 // Check for whitespace or symbols to end token
                 if (!inQuote)
                 {
                     if (IsWhitespace(c))
                     {
-                        break;
+                        reader.Read(); // gobble char
+                        break; // end token
                     }
                     if (IsJsonSymbol(c))
                     {
-                        pos--; // move back one char so symbol can be read next time
-                        break;
+                        // don't gobble char
+                        break; // end token
                     }
                     // Any comments end the token
-                    if (c == '/' && pos < value.Length)
+                    if (c == '/')
                     {
-                        if (value[pos] == '*' || value[pos] == '/')
+                        if (reader.PeekNext () == '*' || reader.PeekNext() == '/')
                         {
-                            pos--; // move back one char so comment can be read next time
-                            break;
+                            // don't gobble char
+                            break; // end token
                         }
                     }
                     if (c != '\"' && !IsJsonValueChar(c))
@@ -440,7 +441,7 @@ namespace DA_JsonLibrary_CS
                 {
                     // Add backslash and character, no expansion here
                     result.Append('\\');
-                    result.Append(c);
+                    result.Append((char)reader.Read());
                     lastBackslash = false;
                 }
                 else if (inQuote && c == '\\')
@@ -453,7 +454,8 @@ namespace DA_JsonLibrary_CS
                     // Check for quotes around a string
                     if (inQuote)
                     {
-                        result.Append('\"'); // add ending quote
+                        result.Append((char)reader.Read()); // add ending quote
+                        inQuote = false;
                         break; // Token is done
                     }
                     if (result.Length > 0)
@@ -461,19 +463,16 @@ namespace DA_JsonLibrary_CS
                         // Quote in the middle of a token?
                         throw new SystemException("JSON Error: Unexpected quote char");
                     }
-                    result.Append('\"'); // add beginning quote
+                    result.Append((char)reader.Read()); // add beginning quote
                     inQuote = true;
                 }
                 else
                 {
                     // Add this char
-                    result.Append(c);
+                    result.Append((char)reader.Read());
                 }
-                // Get char for next loop
-                c = value[pos];
-                pos++;
             }
-            while (pos <= value.Length);
+            while (reader.Peek() != -1);
             return result.ToString();
         }
 
@@ -540,54 +539,58 @@ namespace DA_JsonLibrary_CS
             }
         }
 
-        internal static void SkipWhitespace(string value, ref int pos)
+        internal static void SkipWhitespace(CharReader reader)
         {
             // Purpose: Skip over any whitespace characters or any recognized comments
             // Author : Scott Bakker
             // Created: 09/23/2019
+            // LastMod: 04/17/2020
             // Notes  : Comments consist of /*...*/ or // to eol (aka line comment)
             //        : An unterminated comment is not an error, it is just all skipped
-            if (value == null)
+            if (reader == null || reader.Peek() == -1)
             {
                 return;
             }
             bool inComment = false;
             bool inLineComment = false;
-            while (pos < value.Length)
+            while (reader.Peek() != -1)
             {
                 if (inComment)
                 {
-                    if (value[pos] == '/' && value[pos - 1] == '*') // found ending "*/"
+                    if (reader.Peek() == '*' && reader.PeekNext () == '/' ) // found ending "*/"
                     {
                         inComment = false;
+                        reader.Read();
                     }
-                    pos++;
+                    reader.Read();
                     continue;
                 }
                 if (inLineComment)
                 {
-                    if (value[pos] == '\r' || value[pos] == '\n') // found end of line
+                    if (reader.Peek() == '\r' || reader.Peek() == '\n') // found end of line
                     {
                         inLineComment = false;
                     }
-                    pos++;
+                    reader.Read();
                     continue;
                 }
-                if (value[pos] == '/' && pos + 1 < value.Length && value[pos + 1] == '*')
+                if (reader.Peek() == '/' && reader.PeekNext() == '*')
                 {
                     inComment = true;
-                    pos += 3; // must be sure to skip enough so "/*/" pattern doesn't work but "/**/" does
+                    reader.Read();
+                    reader.Read();
                     continue;
                 }
-                if (value[pos] == '/' && pos + 1 < value.Length && value[pos + 1] == '/')
+                if (reader.Peek() == '/' && reader.PeekNext() == '/')
                 {
                     inLineComment = true;
-                    pos += 2; // skip over "//"
+                    reader.Read();
+                    reader.Read();
                     continue;
                 }
-                if (IsWhitespace(value[pos]))
+                if (IsWhitespace((char)reader.Peek()))
                 {
-                    pos++;
+                    reader.Read();
                     continue;
                 }
                 break;

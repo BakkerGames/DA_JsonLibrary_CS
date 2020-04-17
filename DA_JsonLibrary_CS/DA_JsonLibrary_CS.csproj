@@ -7,7 +7,7 @@
     <ProjectGuid>{96CC0CEA-619A-4F03-9225-024B33F48725}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DA_JsonLibrary_CS</RootNamespace>
+    <RootNamespace>JsonLibrary</RootNamespace>
     <AssemblyName>DA_JsonLibrary_CS</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharReader.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="JArray.cs" />
     <Compile Include="JObject.cs" />
