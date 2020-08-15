@@ -54,7 +54,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":null}";
             JObject jo = new JObject();
-            jo.Add("key", null);
+            jo["key"] = null;
             // act
             actualValue = jo.ToString();
             // assert
@@ -68,7 +68,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":false}";
             JObject jo = new JObject();
-            jo.Add("key", false);
+            jo["key"] = false;
             // act
             actualValue = jo.ToString();
             // assert
@@ -82,7 +82,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":true}";
             JObject jo = new JObject();
-            jo.Add("key", true);
+            jo["key"] = true;
             // act
             actualValue = jo.ToString();
             // assert
@@ -96,7 +96,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":\"abc\"}";
             JObject jo = new JObject();
-            jo.Add("key", "abc");
+            jo["key"] = "abc";
             // act
             actualValue = jo.ToString();
             // assert
@@ -110,7 +110,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":\"\\r\\n\\t\\b\\f\\u1234\"}";
             JObject jo = new JObject();
-            jo.Add("key", "\r\n\t\b\f\u1234");
+            jo["key"] = "\r\n\t\b\f\u1234";
             // act
             actualValue = jo.ToString();
             // assert
@@ -124,7 +124,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":123}";
             JObject jo = new JObject();
-            jo.Add("key", 123);
+            jo["key"] = 123;
             // act
             actualValue = jo.ToString();
             // assert
@@ -138,7 +138,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\r\n  \"key\": 123\r\n}";
             JObject jo = new JObject();
-            jo.Add("key", 123);
+            jo["key"] = 123;
             // act
             actualValue = jo.ToStringFormatted();
             // assert
@@ -152,7 +152,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":123.45}";
             JObject jo = new JObject();
-            jo.Add("key", 123.45);
+            jo["key"] = 123.45;
             // act
             actualValue = jo.ToString();
             // assert
@@ -218,7 +218,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":\"2017-01-02\"}";
             JObject jo = new JObject();
-            jo.Add("key", DateTime.Parse("01/02/2017"));
+            jo["key"] = DateTime.Parse("01/02/2017");
             // act
             actualValue = jo.ToString();
             // assert
@@ -232,7 +232,7 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":\"2017-01-02 16:42:25\"}"; // difference, has no T or .0000000
             JObject jo = new JObject();
-            jo.Add("key", DateTime.Parse("01/02/2017 16:42:25"));
+            jo["key"] = DateTime.Parse("01/02/2017 16:42:25");
             // act
             actualValue = jo.ToString();
             // assert
@@ -247,8 +247,8 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{\"key\":{\"newkey\":456}}";
             JObject jo = new JObject();
             JObject jo2 = new JObject();
-            jo2.Add("newkey", 456);
-            jo.Add("key", jo2);
+            jo2["newkey"] = 456;
+            jo["key"] = jo2;
             // act
             actualValue = jo.ToString();
             // assert
@@ -265,7 +265,7 @@ namespace UnitTestProjectJson_CS
             JArray ja = new JArray();
             ja.Add("newkey");
             ja.Add(456);
-            jo.Add("key", ja);
+            jo["key"] = ja;
             // act
             actualValue = jo.ToString();
             // assert
@@ -279,8 +279,8 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\"key\":123,\"otherkey\":789.12}";
             JObject jo = new JObject();
-            jo.Add("key", 123);
-            jo.Add("otherkey", 789.12);
+            jo["key"] = 123;
+            jo["otherkey"] = 789.12;
             // act
             actualValue = jo.ToString();
             // assert
@@ -294,8 +294,8 @@ namespace UnitTestProjectJson_CS
             string actualValue;
             string expectedValue = "{\r\n  \"key\": 123,\r\n  \"otherkey\": 789.12\r\n}";
             JObject jo = new JObject();
-            jo.Add("key", 123);
-            jo.Add("otherkey", 789.12);
+            jo["key"] = 123;
+            jo["otherkey"] = 789.12;
             // act
             actualValue = jo.ToStringFormatted();
             // assert
@@ -336,7 +336,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{\"array\":[1,2,3,4]}";
             int[] ia = { 1, 2, 3, 4 };
             JObject jo = new JObject();
-            jo.Add("array", ia);
+            jo["array"] = ia;
             // act
             actualValue = jo.ToString();
             // assert
@@ -351,7 +351,7 @@ namespace UnitTestProjectJson_CS
             string expectedValue = "{\"list\":[1,2,3,4]}";
             List<int> ia = new List<int> { 1, 2, 3, 4 };
             JObject jo = new JObject();
-            jo.Add("list", ia);
+            jo["list"] = ia;
             // act
             actualValue = jo.ToString();
             // assert
