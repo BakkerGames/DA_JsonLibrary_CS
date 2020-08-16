@@ -1,7 +1,7 @@
 ﻿// Purpose: Provide a JSON Object class
 // Author : Scott Bakker
 // Created: 09/13/2019
-// LastMod: 08/11/2020
+// LastMod: 08/14/2020
 
 // Notes  : The keys in this JObject implementation are case sensitive, so "abc" <> "ABC".
 //        : Keys cannot be blank: null, empty, or contain only whitespace.
@@ -18,6 +18,8 @@
 //          would not be equal, and thus would create two entries.
 //          This difference is in the calling application language, not the language of
 //          this class library, and only matters with compiled literal string values.
+//        : A path to a specific value can be accessed using multiple key strings, as in
+//              jo["key1", "key2", "key3"] = 123;
 
 using System;
 using System.Collections;
@@ -104,37 +106,79 @@ namespace JsonLibrary
             return _data.Count;
         }
 
-        public object this[string key]
+        public object this[params string[] keys]
         {
             // Purpose: Give access to item values by key
             // Author : Scott Bakker
             // Created: 09/13/2019
-            // LastMod: 05/15/2020
+            // LastMod: 08/14/2020
             get
             {
-                if (JsonRoutines.IsWhitespaceString(key))
+                JObject jo = this;
+                int i;
+                // Follow the path specified in keys
+                for (i = 0; i < keys.Length - 1; i++)
                 {
-                    throw new ArgumentNullException(nameof(key), JsonKeyError);
+                    if (JsonRoutines.IsWhitespaceString(keys[i]))
+                    {
+                        throw new ArgumentNullException(nameof(keys), JsonKeyError);
+                    }
+                    if (!jo._data.ContainsKey(keys[i]))
+                    {
+                        return null;
+                    }
+                    if (jo._data[keys[i]].GetType() != typeof(JObject))
+                    {
+                        throw new ArgumentException($"Type is not JObject for \"{keys[i]}\": {jo._data[keys[i]].GetType()}");
+                    }
+                    jo = (JObject)jo._data[keys[i]];
                 }
-                if (!_data.ContainsKey(key))
+                // Get the value
+                i = keys.Length - 1;
+                if (JsonRoutines.IsWhitespaceString(keys[i]))
+                {
+                    throw new ArgumentNullException(nameof(keys), JsonKeyError);
+                }
+                if (!jo._data.ContainsKey(keys[i]))
                 {
                     return null;
                 }
-                return _data[key];
+                return jo._data[keys[i]];
             }
             set
             {
-                if (JsonRoutines.IsWhitespaceString(key))
+                JObject jo = this;
+                int i;
+                // Follow the path specified in keys
+                for (i = 0; i < keys.Length - 1; i++)
                 {
-                    throw new ArgumentNullException(nameof(key), JsonKeyError);
+                    if (JsonRoutines.IsWhitespaceString(keys[i]))
+                    {
+                        throw new ArgumentNullException(nameof(keys), JsonKeyError);
+                    }
+                    if (!jo._data.ContainsKey(keys[i]))
+                    {
+                        jo._data.Add(keys[i], new JObject());
+                    }
+                    else if (jo._data[keys[i]].GetType() != typeof(JObject))
+                    {
+                        throw new ArgumentException($"Type is not JObject for \"{keys[i]}\": {jo._data[keys[i]].GetType()}");
+                    }
+                    jo = (JObject)jo._data[keys[i]];
                 }
-                if (!_data.ContainsKey(key))
+                // Add/update value
+                i = keys.Length - 1;
+                if (JsonRoutines.IsWhitespaceString(keys[i]))
                 {
-                    _data.Add(key, value);
+                    throw new ArgumentNullException(nameof(keys), JsonKeyError);
+                }
+                if (!jo._data.ContainsKey(keys[i]))
+                {
+                    jo._data.Add(keys[i], value);
                 }
                 else
                 {
-                    _data[key] = value;
+                    jo._data[keys[i]] = value;
                 }
             }
         }
